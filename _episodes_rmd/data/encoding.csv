@@ -1,0 +1,41 @@
+variable,code,value
+sex,1,Male
+sex,2,Female
+sex,9,Unknown/Unclear
+religion,1,Great Stallion
+religion,2,Lord of Light
+religion,3,Faith of the Seven
+religion,4,Old Gods
+religion,5,Drowned God
+religion,6,Many Faced God
+religion,7,Other
+religion,9,Unknown/Unclear
+occupation,1,Silk collar
+occupation,2,Boiled leather collar
+occupation,9,Unknown/Unclear
+social_status,1,Highborn
+social_status,2,Lowborn
+social_status,9,Unknown/Unclear
+allegiance_last,1,Stark
+allegiance_last,2,Targaryen
+allegiance_last,3,Night's Watch
+allegiance_last,4,Lannister
+allegiance_last,5,Greyjoy
+allegiance_last,6,Bolton
+allegiance_last,7,Frey
+allegiance_last,8,Other
+allegiance_last,9,Unknown/Unclear
+allegiance_switched,1,No
+allegiance_switched,2,Yes
+allegiance_switched,9,Unknown/Unclear
+dth_flag,0,No
+dth_flag,1,Yes
+top_location,1,Indoors
+top_location,2,Outdoors
+top_location,9,Unknown/Unclear
+geo_location,1,Westeros
+geo_location,2,Essos
+geo_location,9,Unknown/Unclea
+time_of_day,1,Day
+time_of_day,2,Night
+time_of_day,9,Unknown/Unclear
