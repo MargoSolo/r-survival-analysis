@@ -1,0 +1,643 @@
+I"��<p><img src="./../fig/GoT.png" alt="Death is certain, the time is not" /></p>
+
+<p>Let’s start by downloading Game of Thrones characters’ mortality data, that was published <a href="https://figshare.com/articles/Game_of_Thrones_mortality_and_survival_dataset/8259680?mc_cid=6ee60dc1ef&amp;mc_eid=f10fe3b3f2">here</a>. Please save the following two files using <code class="highlighter-rouge">File - Save As</code> dialog in your browser.</p>
+
+<ol>
+  <li>Original <a href="https://raw.githubusercontent.com/lauzikaite/r-novice-gapminder/gh-pages/_episodes_rmd/data/character_data_S01-S08.csv">characters data</a></li>
+  <li>Additional <a href="https://raw.githubusercontent.com/lauzikaite/r-novice-gapminder/gh-pages/_episodes_rmd/data/encoding.csv">data encoding</a> table</li>
+</ol>
+
+<p>In this episode, we will provide solutions based both on <strong>base R</strong> and <strong>Tidyverse</strong>. To begin with, we will only load the <code class="highlighter-rouge">dplyr</code> package, which we will use the most. Note that we will call some of the functions from other <strong>Tidyverse</strong> packages by <code class="highlighter-rouge">package_name::function_name</code> which is a common way of calling functions without loading the whole package.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">dplyr</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+Attaching package: 'dplyr'
+</code></pre></div></div>
+
+<div class="output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>The following objects are masked from 'package:stats':
+
+    filter, lag
+</code></pre></div></div>
+
+<div class="output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union
+</code></pre></div></div>
+
+<blockquote class="challenge">
+  <h2 id="challenge-1">Challenge 1</h2>
+
+  <p>Save all three files your <code class="highlighter-rouge">data/</code> directory and change the working directory to it.
+Now read the <code class="highlighter-rouge">data/character_data_S01-S08.csv</code> and <code class="highlighter-rouge">data/encoding.csv</code> files into R.</p>
+
+  <blockquote class="solution">
+    <h2 id="solution-to-challenge-1">Solution to Challenge 1</h2>
+
+    <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">setwd</span><span class="p">(</span><span class="s1">'path/to/data'</span><span class="p">)</span><span class="w">
+</span><span class="n">got_dat</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read.csv</span><span class="p">(</span><span class="n">file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"character_data_S01-S08.csv"</span><span class="p">,</span><span class="w"> </span><span class="n">header</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">stringsAsFactors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)</span><span class="w">
+</span><span class="n">meta</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read.csv</span><span class="p">(</span><span class="n">file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"encoding.csv"</span><span class="p">,</span><span class="w"> </span><span class="n">header</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">stringsAsFactors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)</span><span class="w">
+</span></code></pre></div>    </div>
+  </blockquote>
+</blockquote>
+
+<p>Once data is loaded into R, let’s evaluate its quality.</p>
+
+<blockquote class="challenge">
+  <h2 id="challenge-2">Challenge 2</h2>
+
+  <p>Does the table with GoT characters’s mortality data look correct? Are there any missing entries?</p>
+
+  <blockquote class="solution">
+    <h2 id="solution-to-challenge-2">Solution to Challenge 2</h2>
+
+    <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## make a summary for each column </span><span class="w">
+</span><span class="n">summary</span><span class="p">(</span><span class="n">got_dat</span><span class="p">)</span><span class="w">
+</span></code></pre></div>    </div>
+
+    <div class="output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>       id            name                sex           religion    
+ Min.   :100.0   Length:359         Min.   :1.000   Min.   :1.000  
+ 1st Qu.:189.5   Class :character   1st Qu.:1.000   1st Qu.:4.000  
+ Median :279.0   Mode  :character   Median :1.000   Median :9.000  
+ Mean   :279.0                      Mean   :1.292   Mean   :7.042  
+ 3rd Qu.:368.5                      3rd Qu.:2.000   3rd Qu.:9.000  
+ Max.   :458.0                      Max.   :2.000   Max.   :9.000  
+                                                                   
+   occupation    social_status   allegiance_last allegiance_switched
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   :1.000      
+ 1st Qu.:1.000   1st Qu.:1.000   1st Qu.:3.000   1st Qu.:1.000      
+ Median :2.000   Median :2.000   Median :7.000   Median :1.000      
+ Mean   :2.552   Mean   :1.688   Mean   :5.588   Mean   :1.153      
+ 3rd Qu.:2.000   3rd Qu.:2.000   3rd Qu.:8.000   3rd Qu.:1.000      
+ Max.   :9.000   Max.   :2.000   Max.   :9.000   Max.   :2.000      
+                                                                    
+  intro_season   intro_episode   intro_time_sec   intro_time_hrs 
+ Min.   :1.000   Min.   : 1.00   Min.   :     1   Min.   : 0.00  
+ 1st Qu.:1.000   1st Qu.: 9.00   1st Qu.: 25348   1st Qu.: 7.04  
+ Median :3.000   Median :26.00   Median : 77694   Median :21.58  
+ Mean   :3.487   Mean   :29.07   Mean   : 87279   Mean   :24.24  
+ 3rd Qu.:5.000   3rd Qu.:49.00   3rd Qu.:146960   3rd Qu.:40.82  
+ Max.   :8.000   Max.   :73.00   Max.   :229649   Max.   :63.79  
+                                                                 
+    dth_flag        dth_season     dth_episode     dth_time_sec   
+ Min.   :0.0000   Min.   :1.000   Min.   : 1.00   Min.   :   342  
+ 1st Qu.:0.0000   1st Qu.:2.750   1st Qu.:22.25   1st Qu.: 67520  
+ Median :1.0000   Median :5.000   Median :43.50   Median :131499  
+ Mean   :0.5905   Mean   :4.571   Mean   :41.55   Mean   :126015  
+ 3rd Qu.:1.0000   3rd Qu.:6.000   3rd Qu.:59.00   3rd Qu.:178775  
+ Max.   :1.0000   Max.   :8.000   Max.   :73.00   Max.   :226284  
+                  NA's   :147     NA's   :147     NA's   :147     
+  dth_time_hrs   censor_time_sec  censor_time_hrs   exp_season   
+ Min.   : 0.10   Min.   :   342   Min.   : 0.10   Min.   :1.000  
+ 1st Qu.:18.76   1st Qu.:115072   1st Qu.:31.96   1st Qu.:1.000  
+ Median :36.53   Median :190484   Median :52.91   Median :3.000  
+ Mean   :35.00   Mean   :168922   Mean   :46.92   Mean   :3.487  
+ 3rd Qu.:49.66   3rd Qu.:230800   3rd Qu.:64.11   3rd Qu.:6.000  
+ Max.   :62.86   Max.   :230800   Max.   :64.11   Max.   :8.000  
+ NA's   :147                                                     
+  exp_episode     exp_time_sec     exp_time_hrs   featured_episode_count
+ Min.   : 1.00   Min.   :     8   Min.   : 0.00   Min.   : 1.000        
+ 1st Qu.: 5.00   1st Qu.: 14496   1st Qu.: 4.03   1st Qu.: 1.000        
+ Median :20.00   Median : 66551   Median :18.49   Median : 3.000        
+ Mean   :26.35   Mean   : 81644   Mean   :22.68   Mean   : 7.805        
+ 3rd Qu.:45.00   3rd Qu.:144592   3rd Qu.:40.16   3rd Qu.: 8.000        
+ Max.   :73.00   Max.   :230347   Max.   :63.99   Max.   :67.000        
+                                                                        
+   prominence     dth_description    icd10_dx_code      icd10_dx_text     
+ Min.   :0.1111   Length:359         Length:359         Length:359        
+ 1st Qu.:0.3333   Class :character   Class :character   Class :character  
+ Median :0.8750   Mode  :character   Mode  :character   Mode  :character  
+ Mean   :1.1292                                                           
+ 3rd Qu.:1.1716                                                           
+ Max.   :7.3425                                                           
+                                                                          
+ icd10_cause_code   icd10_cause_text   icd10_place_code   icd10_place_text  
+ Length:359         Length:359         Length:359         Length:359        
+ Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                                                                            
+                                                                            
+                                                                            
+                                                                            
+  top_location    geo_location    time_of_day       X             X.1         
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Mode:logical   Mode:logical  
+ 1st Qu.:1.000   1st Qu.:1.000   1st Qu.:1.000   NA's:359       NA's:359      
+ Median :2.000   Median :1.000   Median :1.000                                
+ Mean   :2.377   Mean   :1.175   Mean   :2.509                                
+ 3rd Qu.:2.000   3rd Qu.:1.000   3rd Qu.:2.000                                
+ Max.   :9.000   Max.   :2.000   Max.   :9.000                                
+ NA's   :147     NA's   :147     NA's   :147                                  
+   X.2            X.3            X.4            X.5         
+ Mode:logical   Mode:logical   Mode:logical   Mode:logical  
+ NA's:359       NA's:359       NA's:359       NA's:359      
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+</code></pre></div>    </div>
+
+    <p>The last five columns have no entries at all and should be removed to not interfere with statistical analyses.</p>
+
+    <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## remove columns that only contain NAs as entries</span><span class="w">
+</span><span class="n">got</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">got_dat</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">select</span><span class="p">(</span><span class="n">which</span><span class="p">(</span><span class="n">colSums</span><span class="p">(</span><span class="nf">is.na</span><span class="p">(</span><span class="n">.</span><span class="p">))</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nrow</span><span class="p">(</span><span class="n">got_dat</span><span class="p">)))</span><span class="w">
+</span></code></pre></div>    </div>
+  </blockquote>
+</blockquote>
+
+<h2 id="graphical-data-exploration">Graphical data exploration</h2>
+
+<p>Before proceeding into any kind of statistical analysis, it is worth exploring the dataset of interest from different perspectives.</p>
+
+<p>To make graphical data visualisations, we will be using <code class="highlighter-rouge">ggplot</code> package.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>First, we will make plots to check the distribution of different variables:</p>
+
+<p><strong>Categorical</strong>:</p>
+
+<ul>
+  <li>sex</li>
+  <li>religion</li>
+  <li>occupation</li>
+  <li>social_status</li>
+  <li>allegiance</li>
+  <li>dth_flag</li>
+  <li>…</li>
+</ul>
+
+<p>Type of <strong>occupation</strong> was categorised as “silk collar” (e.g. clergy, merchants, politicians, and rulers) or “boiled leather collar” (e.g. warriors, farmers, and other occupations relying heavily on manual work).</p>
+
+<p>Type of <strong>social status</strong> was categorised as “highborn” (lords, ladies, or legitimate offspring) or “lowborn” (all other characters).</p>
+
+<p>Because some characters switched <strong>allegiance</strong> during the show, both their last known allegiance and whether or not they switched allegiance during the show were recorded.</p>
+
+<p>Whether character died or not during the period provided in the dataset is flagged in column <strong>dth_flag</strong>.</p>
+
+<p><strong>Continuous</strong>:</p>
+
+<ul>
+  <li>intro_season &amp; intro_episode, season/episode number in which character first appeared</li>
+  <li>exp_time_sec, survival time of character</li>
+  <li>intro_time_sec, cumulative net running time when character first appeared</li>
+  <li>dth_episode, number of the episode in which character died</li>
+  <li>icd10_cause_text, cause of death</li>
+  <li>prominence</li>
+  <li>…</li>
+</ul>
+
+<p>A proxy measure for how prominently a character featured in the show was provided in the data. This <strong>prominence</strong> score was calculated by taking the number of episodes that a character appeared in and dividing that by the number of total episodes that the character could have appeared in (i.e. the number of episodes occurring from the character first being introduced until the point of death or censoring). This ratio was then multiplied by the number of seasons that the character had featured in.</p>
+
+<blockquote class="callout">
+  <h2 id="quick-question">Quick question</h2>
+
+  <p>What every other variable in the dataset is: categorical or continuous?</p>
+</blockquote>
+
+<h3 id="distribution">Distribution</h3>
+
+<p>To begin with, let’s compare three categorical variables, e.g. <strong>occupation</strong> vs <strong>sex</strong> vs <strong>social status</strong>.</p>
+
+<blockquote class="challenge">
+  <h2 id="challenge-3">Challenge 3</h2>
+
+  <p>Make a bar chart to show the distribution of three categorical variables of your choice, e.g. <em>occupation</em> vs <em>sex</em> vs <em>social status</em>. How can you ensure that all three variables are represented in single figure? Tip - think about the aesthetics mapping in <code class="highlighter-rouge">ggplot()</code>.</p>
+
+  <blockquote class="solution">
+    <h2 id="solution-to-challenge-3">Solution to Challenge 3</h2>
+
+    <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">got</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+</span><span class="n">geom_bar</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">factor</span><span class="p">(</span><span class="n">occupation</span><span class="p">),</span><span class="w"> </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">factor</span><span class="p">(</span><span class="n">social_status</span><span class="p">)))</span><span class="w"> </span><span class="o">+</span><span class="w">
+</span><span class="n">facet_wrap</span><span class="p">(</span><span class="o">~</span><span class="n">sex</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+</span><span class="n">scale_x_discrete</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"occupation"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+</span><span class="n">scale_fill_viridis_d</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"social status"</span><span class="p">)</span><span class="w">
+</span></code></pre></div>    </div>
+
+    <p><img src="../fig/rmd-1-unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" width="612" style="display: block; margin: auto;" /></p>
+  </blockquote>
+</blockquote>
+
+<p>This is not a very informative graph, because all categorical variables are encoded as numerical categories. Details of what number corresponds to what value are available in the <code class="highlighter-rouge">data_dictionary.pdf</code> file that you can download from the original data source <a href="https://figshare.com/articles/Game_of_Thrones_mortality_and_survival_dataset/8259680?mc_cid=6ee60dc1ef&amp;mc_eid=f10fe3b3f2">link</a>. For simplicity’s sake, we have saved them into the <code class="highlighter-rouge">data/encoding.csv</code> file, that you have loaded as <code class="highlighter-rouge">meta</code> object during Challenge 1.</p>
+
+<blockquote class="challenge">
+  <h2 id="challenge-4">Challenge 4</h2>
+
+  <p>How can you find the values for each of the encoded categorical variable?</p>
+
+  <blockquote class="solution">
+    <h2 id="solution-to-challenge-4">Solution to Challenge 4</h2>
+
+    <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## What are the categorial variables?</span><span class="w">
+</span><span class="n">cols_cat</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">unique</span><span class="p">(</span><span class="n">meta</span><span class="o">$</span><span class="n">variable</span><span class="p">)</span><span class="w">
+</span><span class="n">got_cat</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">got</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">select</span><span class="p">(</span><span class="n">cols_cat</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">tidyr</span><span class="o">::</span><span class="n">gather</span><span class="p">(</span><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cat_variable</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cat_code</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">rowwise</span><span class="p">()</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">variable_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ifelse</span><span class="p">(</span><span class="nf">is.na</span><span class="p">(</span><span class="n">cat_code</span><span class="p">),</span><span class="w"> </span><span class="kc">NA</span><span class="p">,</span><span class="w">
+    </span><span class="n">meta</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+      </span><span class="n">filter</span><span class="p">(</span><span class="n">variable</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">cat_variable</span><span class="p">,</span><span class="w"> </span><span class="n">code</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">cat_code</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+      </span><span class="n">select</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+      </span><span class="n">pull</span><span class="p">()))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">select</span><span class="p">(</span><span class="o">-</span><span class="n">cat_code</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">tidyr</span><span class="o">::</span><span class="n">spread</span><span class="p">(</span><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cat_variable</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">variable_value</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">ungroup</span><span class="p">()</span><span class="w">
+</span></code></pre></div>    </div>
+
+    <div class="output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Note: Using an external vector in selections is ambiguous.
+ℹ Use `all_of(cols_cat)` instead of `cols_cat` to silence this message.
+ℹ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.
+This message is displayed once per session.
+</code></pre></div>    </div>
+
+    <p>Now that you have a data.frame with values for the categorical variables, re-run the distribution plot.
+Make sure that x-axis is readible. Tip - rotate the labels.</p>
+
+    <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">got_cat</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_bar</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">factor</span><span class="p">(</span><span class="n">occupation</span><span class="p">),</span><span class="w"> </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">factor</span><span class="p">(</span><span class="n">social_status</span><span class="p">)))</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">facet_wrap</span><span class="p">(</span><span class="o">~</span><span class="n">sex</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">scale_x_discrete</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"occupation"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">scale_fill_viridis_d</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"social status"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">theme</span><span class="p">(</span><span class="n">axis.text.x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_text</span><span class="p">(</span><span class="n">angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">90</span><span class="p">,</span><span class="w"> </span><span class="n">hjust</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">))</span><span class="w">
+</span></code></pre></div>    </div>
+
+    <p><img src="../fig/rmd-1-unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" width="612" style="display: block; margin: auto;" /></p>
+  </blockquote>
+</blockquote>
+
+<p>Let’s explore this dataset more by looking into how frequently new characters were introduced into the show. Which <code class="highlighter-rouge">got</code> data.frame column store this information?</p>
+
+<blockquote class="challenge">
+  <h2 id="challenge-5">Challenge 5</h2>
+
+  <p>Make two bar charts: one to show how many character were introduced in every season and one to show how many characters died in each season.</p>
+
+  <blockquote class="solution">
+    <h2 id="solution-to-challenge-5">Solution to Challenge 5</h2>
+
+    <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## make a bar chart to show how many character were introduced in every season</span><span class="w">
+</span><span class="n">ggplot</span><span class="p">(</span><span class="n">got</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_bar</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">as.factor</span><span class="p">(</span><span class="n">intro_season</span><span class="p">)))</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">scale_x_discrete</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Season number"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">ggtitle</span><span class="p">(</span><span class="s2">"How many new characters were introduced in each season"</span><span class="p">)</span><span class="w">
+</span></code></pre></div>    </div>
+
+    <p><img src="../fig/rmd-1-unnamed-chunk-13-1.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" width="612" style="display: block; margin: auto;" />
+Maybe this explain why season 7 is considered the worst of all?</p>
+
+    <p>Now, let’s plot how many characters died in each season. There are characters which have NAs in the corresponding data.frame columns. Can you add them to the plot with a more meaningful data label than NA?</p>
+
+    <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## the second bar chart</span><span class="w">
+</span><span class="n">ggplot</span><span class="p">(</span><span class="n">got</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="c1">## use dplyr mutate inside ggplot to quickly modify the column only for the plot</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">dth_season</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ifelse</span><span class="p">(</span><span class="nf">is.na</span><span class="p">(</span><span class="n">dth_season</span><span class="p">),</span><span class="w"> </span><span class="s2">"Still alive"</span><span class="p">,</span><span class="w"> </span><span class="n">dth_season</span><span class="p">)))</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_bar</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">as.factor</span><span class="p">(</span><span class="n">dth_season</span><span class="p">)))</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">scale_x_discrete</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Season number"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">ggtitle</span><span class="p">(</span><span class="s2">"How many characters died in each season"</span><span class="p">)</span><span class="w">
+</span></code></pre></div>    </div>
+
+    <p><img src="../fig/rmd-1-unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" width="612" style="display: block; margin: auto;" /></p>
+  </blockquote>
+</blockquote>
+
+<h2 id="brief-overview">Brief overview</h2>
+
+<p>It is worth performing some basic statistics before diving deep into the questions that really interests you.</p>
+
+<p>For example, we can check whether <strong>men and women</strong> have the same distribution of <strong>occupation</strong> using <strong>chi-square test</strong>. The chi-squared test is a statistical hypothesis test that assumes (the null hypothesis) that the observed frequencies for a categorical variable match the expected frequencies for the categorical variable.</p>
+
+<blockquote class="challenge">
+  <h2 id="challenge-6">Challenge 6</h2>
+
+  <p>Calculate chi-square statistic between sex and occupation, or your selected categorical variables. Which of the variables are independent of the sex variable and which are dependent?</p>
+
+  <p>We will use function <code class="highlighter-rouge">chisq.test</code> and set <code class="highlighter-rouge">correct=FALSE</code> to turn off Yates’ continuity correction.</p>
+
+  <blockquote class="solution">
+    <h2 id="solution-to-challenge-6">Solution to Challenge 6</h2>
+
+    <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## look into the number of characters in each category</span><span class="w">
+</span><span class="n">table</span><span class="p">(</span><span class="n">got_cat</span><span class="o">$</span><span class="n">sex</span><span class="p">,</span><span class="w"> </span><span class="n">got_cat</span><span class="o">$</span><span class="n">occupation</span><span class="p">)</span><span class="w">
+</span></code></pre></div>    </div>
+
+    <div class="output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>        
+         Boiled leather collar Silk collar Unknown/Unclear
+  Female                    44          24              37
+  Male                     177          72               5
+</code></pre></div>    </div>
+
+    <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## run the test</span><span class="w">
+</span><span class="n">chisq.test</span><span class="p">(</span><span class="n">got_cat</span><span class="o">$</span><span class="n">sex</span><span class="p">,</span><span class="w"> </span><span class="n">got_cat</span><span class="o">$</span><span class="n">occupation</span><span class="p">,</span><span class="w"> </span><span class="n">correct</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)</span><span class="w">
+</span></code></pre></div>    </div>
+
+    <div class="output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+	Pearson's Chi-squared test
+
+data:  got_cat$sex and got_cat$occupation
+X-squared = 80.436, df = 2, p-value &lt; 2.2e-16
+</code></pre></div>    </div>
+
+    <p>It seems as if sex and occupation variables are dependent? But information of the occupation for lots of the characters is unknwon. Perhaps these should be omitted from the test.</p>
+
+    <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## remove characters for which occupation is not known</span><span class="w">
+</span><span class="n">got_occup</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">got_cat</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">filter</span><span class="p">(</span><span class="n">occupation</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s2">"Unknown/Unclear"</span><span class="p">)</span><span class="w">
+</span><span class="c1">## rerun the test</span><span class="w">
+</span><span class="n">chisq.test</span><span class="p">(</span><span class="n">got_occup</span><span class="o">$</span><span class="n">sex</span><span class="p">,</span><span class="w"> </span><span class="n">got_occup</span><span class="o">$</span><span class="n">occupation</span><span class="p">,</span><span class="w"> </span><span class="n">correct</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)</span><span class="w">
+</span></code></pre></div>    </div>
+
+    <div class="output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+	Pearson's Chi-squared test
+
+data:  got_occup$sex and got_occup$occupation
+X-squared = 1.0293, df = 1, p-value = 0.3103
+</code></pre></div>    </div>
+  </blockquote>
+</blockquote>
+
+<p>The cause of death is stored in column <code class="highlighter-rouge">icd10_cause_text</code> in the original dataset. Value <code class="highlighter-rouge">dth_flag == 1</code> indicates that character died during the period described in the dataset.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">head</span><span class="p">(</span><span class="n">got</span><span class="p">[</span><span class="n">got</span><span class="o">$</span><span class="n">dth_flag</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="s2">"icd10_cause_text"</span><span class="p">])</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[1] "Assault by knife"                                                                  
+[2] "Assault by knife"                                                                  
+[3] "Legal execution"                                                                   
+[4] "Assault by hanging, strangulation and suffocation"                                 
+[5] "Assault by other specified sharp object"                                           
+[6] "War operations involving firearm discharge and other forms of conventional warfare"
+</code></pre></div></div>
+
+<blockquote class="challenge">
+  <h2 id="challenge-7">Challenge 7</h2>
+
+  <p>Provide answers to the following questions:</p>
+
+  <ul>
+    <li>What percentage of characters died by the end of the period included in the dataset?</li>
+    <li>What were the major causes of death?</li>
+  </ul>
+
+  <blockquote class="solution">
+    <h2 id="solution-to-challenge-7">Solution to Challenge 7</h2>
+
+    <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">chars_died</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">nrow</span><span class="p">(</span><span class="n">got</span><span class="p">[</span><span class="n">got</span><span class="o">$</span><span class="n">dth_flag</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="p">])</span><span class="w">
+</span><span class="n">chars_total</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">nrow</span><span class="p">(</span><span class="n">got</span><span class="p">)</span><span class="w">
+</span><span class="c1">## percentage of characters that died</span><span class="w">
+</span><span class="n">chars_died</span><span class="o">/</span><span class="w"> </span><span class="n">chars_total</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">100</span><span class="w">
+</span></code></pre></div>    </div>
+
+    <div class="output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[1] 59.05292
+</code></pre></div>    </div>
+    <p>To identify the most common cause of death, use base R function <code class="highlighter-rouge">table</code> which calculates frequencies of entries.</p>
+
+    <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">causes</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">table</span><span class="p">(</span><span class="n">got</span><span class="p">[</span><span class="n">got</span><span class="o">$</span><span class="n">dth_flag</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="s2">"icd10_cause_text"</span><span class="p">])</span><span class="w">
+</span><span class="n">causes</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">as.data.frame</span><span class="p">(</span><span class="n">causes</span><span class="p">[</span><span class="n">order</span><span class="p">(</span><span class="n">causes</span><span class="p">,</span><span class="w"> </span><span class="n">decreasing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)])</span><span class="w">
+</span><span class="n">causes</span><span class="o">$</span><span class="n">prop</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">causes</span><span class="o">$</span><span class="n">Freq</span><span class="o">/</span><span class="n">chars_died</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">100</span><span class="w">
+</span><span class="n">cat</span><span class="p">(</span><span class="n">paste</span><span class="p">(</span><span class="n">causes</span><span class="o">$</span><span class="n">Var1</span><span class="p">,</span><span class="w">  </span><span class="s2">"-"</span><span class="p">,</span><span class="w"> </span><span class="n">causes</span><span class="o">$</span><span class="n">prop</span><span class="p">,</span><span class="w"> </span><span class="s2">"\n"</span><span class="p">,</span><span class="w"> </span><span class="n">sep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">" "</span><span class="p">))</span><span class="w">
+</span></code></pre></div>    </div>
+
+    <div class="output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Assault by knife - 27.3584905660377 
+ War operations involving firearm discharge and other forms of conventional warfare - 24.5283018867925 
+ Assault by smoke, fire and flames - 8.49056603773585 
+ Assault by other specified sharp object - 5.66037735849057 
+ Legal execution - 5.18867924528302 
+ Assault by drugs, medicaments and biological substances - 3.30188679245283 
+ War operations involving fires, conflagrations and hot substances - 3.30188679245283 
+ Assault by bodily force - 2.83018867924528 
+ Assault by unspecified means - 2.83018867924528 
+ Assault by pushing from high place - 2.35849056603774 
+ Bitten or struck by other mammal - 2.35849056603774 
+ Assault by hanging, strangulation and suffocation - 1.88679245283019 
+ Other maltreatment syndromes - 1.88679245283019 
+  - 1.41509433962264 
+ Bitten or struck by dog - 1.41509433962264 
+ Assault by blunt object - 0.943396226415094 
+ Intentional self-harm by jumping from a high place - 0.943396226415094 
+ Intentional self-poisoning by and exposure to other unspecified drugs, medicaments and biological substances - 0.943396226415094 
+ War operations, unspecified - 0.943396226415094 
+ Assault by steam, hot vapours and hot objects - 0.471698113207547 
+ Intentional self-harm by hanging - 0.471698113207547 
+ Intentional self-harm by knife - 0.471698113207547 
+</code></pre></div>    </div>
+  </blockquote>
+</blockquote>
+
+<h1 id="survival-analysis">Survival analysis</h1>
+
+<p>We will use Kaplan-Meier (KM) survival analysis with Cox proportional hazard regression modelling to quantify survival times and probabilities and to identify independent predictors of mortality, respectively.</p>
+
+<p>A good introduction on the topic can be found at <a href="https://www.datacamp.com/community/tutorials/survival-analysis-R">datacamp</a>.</p>
+
+<h2 id="kaplan-meier-model">Kaplan-Meier model</h2>
+
+<p>The survival probability is the probability that an individual survives from the time origin (here, first appearance on the screen) to a specified future time (here, end of the period described in the dataset). The KM method is a non-parametric method used to estimate the survival probability from observed survival times. The KM survival curve provides a summary of the data and can be used to estimate e.g. median survival time.</p>
+
+<h3 id="fit-data-to-model">Fit data to model</h3>
+
+<p>We will use <code class="highlighter-rouge">survival</code> package to perform model fitting and <code class="highlighter-rouge">survminer</code> package for survival curves plots. Install and load required packages.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">install.packages</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="s2">"survival"</span><span class="p">,</span><span class="w"> </span><span class="s2">"survminer"</span><span class="p">))</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">survival</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">survminer</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Loading required package: ggpubr
+</code></pre></div></div>
+
+<div class="output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Loading required package: magrittr
+</code></pre></div></div>
+
+<p>First, we will fit mortality data to the KM model. Column <strong>exp_time_hrs</strong> stores survival time of character in the show (hours), column <strong>dth_flag</strong> indicates whether character has died. Let’s add these columns to the <code class="highlighter-rouge">got_cat</code> data.frame, which contains catgeorical variables values, so that all neccessary information would be in one table.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## got and got_cat have the same order, therefore we can simply take the columns from got</span><span class="w">
+</span><span class="n">got_cat</span><span class="o">$</span><span class="n">exp_time_hrs</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">got</span><span class="o">$</span><span class="n">exp_time_hrs</span><span class="w">
+</span><span class="n">got_cat</span><span class="o">$</span><span class="n">dth_flag</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">got</span><span class="o">$</span><span class="n">dth_flag</span><span class="w">
+</span><span class="n">surv_object</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">with</span><span class="p">(</span><span class="n">got_cat</span><span class="p">,</span><span class="w"> </span><span class="n">Surv</span><span class="p">(</span><span class="n">exp_time_hrs</span><span class="p">,</span><span class="w"> </span><span class="n">dth_flag</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The function <code class="highlighter-rouge">survfit</code> will be used to compute KM survival estimate. Its main arguments include:</p>
+
+<ul>
+  <li>formula, represented by a survival object created using the function <code class="highlighter-rouge">Surv</code>.</li>
+  <li>dataset containing the variables.</li>
+</ul>
+
+<p>Let’s plot the survival <strong>probability</strong> vs <strong>time</strong> in the show. Also add a line for median survival time.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## survival without grouping requires to specify 1 in the formula</span><span class="w">
+</span><span class="n">surv_model</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">survfit</span><span class="p">(</span><span class="n">Surv</span><span class="p">(</span><span class="n">exp_time_hrs</span><span class="p">,</span><span class="w"> </span><span class="n">dth_flag</span><span class="p">)</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">got_cat</span><span class="p">)</span><span class="w">
+</span><span class="n">ggsurvplot</span><span class="p">(</span><span class="n">surv_model</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">got_cat</span><span class="p">,</span><span class="w"> </span><span class="n">surv.median.line</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"hv"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="../fig/rmd-1-unnamed-chunk-23-1.png" title="plot of chunk unnamed-chunk-23" alt="plot of chunk unnamed-chunk-23" width="612" style="display: block; margin: auto;" /></p>
+
+<p>Use the <code class="highlighter-rouge">surv_model</code> object to extract the probability of surviving at least 1 h in the show.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">surv_sum</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">summary</span><span class="p">(</span><span class="n">surv_model</span><span class="p">)</span><span class="w">
+</span><span class="c1">## probabilities of surviving less than 1 hour</span><span class="w">
+</span><span class="n">probs_1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">surv_sum</span><span class="o">$</span><span class="n">surv</span><span class="p">[</span><span class="n">which</span><span class="p">(</span><span class="n">surv_sum</span><span class="o">$</span><span class="n">time</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="m">1</span><span class="p">)]</span><span class="w">
+</span><span class="c1">## probability of surviving at least 1 hour</span><span class="w">
+</span><span class="n">probs_1</span><span class="p">[</span><span class="nf">length</span><span class="p">(</span><span class="n">probs_1</span><span class="p">)]</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[1] 0.8462928
+</code></pre></div></div>
+
+<h3 id="stratified-survival">Stratified survival</h3>
+
+<p>Let’s check whether survival probability differs between various groups of characters. We will stratify individuals by:</p>
+
+<ul>
+  <li>sex</li>
+  <li>social_status</li>
+  <li>allegiance_switched</li>
+  <li>prominence</li>
+</ul>
+
+<p>To compare two or more survival curves, most commonly log-rank test is applied. Essentially, the log rank test compares the observed number of events (i.e. deaths) in each group to what would be expected if the null hypothesis were true (i.e., if the survival curves were identical).</p>
+
+<p>The function <code class="highlighter-rouge">survdiff</code> can be used to compute log-rank test comparing two or more survival curves. The variable that stratifies individuals into groups have to be specified in the function’s formula.</p>
+
+<blockquote class="challenge">
+  <h2 id="challenge-8">Challenge 8</h2>
+
+  <p>Fit KM model for the three variables: <strong>sex</strong>, <strong>social_status</strong>, <strong>allegiance_switched</strong>. You will need to specify these in the formula inside the <code class="highlighter-rouge">survfit</code> function.
+To add obtained p-value for test to the plot, use <code class="highlighter-rouge">pval = TRUE</code> argument in <code class="highlighter-rouge">ggsurvplot</code> function.
+Don’t forget to use the data.frame with string values for categorical variables so that the plots would have clear labels.</p>
+
+  <blockquote class="solution">
+    <h2 id="solution-to-challenge-8">Solution to Challenge 8</h2>
+
+    <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## stratify by sex</span><span class="w">
+</span><span class="n">surv_model</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">survfit</span><span class="p">(</span><span class="n">Surv</span><span class="p">(</span><span class="n">exp_time_hrs</span><span class="p">,</span><span class="w"> </span><span class="n">dth_flag</span><span class="p">)</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">sex</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">got_cat</span><span class="p">)</span><span class="w">
+</span><span class="n">ggsurvplot</span><span class="p">(</span><span class="n">surv_model</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">got</span><span class="p">,</span><span class="w"> </span><span class="n">pval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span></code></pre></div>    </div>
+
+    <p><img src="../fig/rmd-1-unnamed-chunk-25-1.png" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" width="612" style="display: block; margin: auto;" /></p>
+
+    <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## stratify by social_status</span><span class="w">
+</span><span class="n">surv_model</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">survfit</span><span class="p">(</span><span class="n">Surv</span><span class="p">(</span><span class="n">exp_time_hrs</span><span class="p">,</span><span class="w"> </span><span class="n">dth_flag</span><span class="p">)</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">social_status</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">got_cat</span><span class="p">)</span><span class="w">
+</span><span class="n">ggsurvplot</span><span class="p">(</span><span class="n">surv_model</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">got</span><span class="p">,</span><span class="w"> </span><span class="n">pval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span></code></pre></div>    </div>
+
+    <p><img src="../fig/rmd-1-unnamed-chunk-26-1.png" title="plot of chunk unnamed-chunk-26" alt="plot of chunk unnamed-chunk-26" width="612" style="display: block; margin: auto;" /></p>
+
+    <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## stratify by allegiance_switched</span><span class="w">
+</span><span class="n">surv_model</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">survfit</span><span class="p">(</span><span class="n">Surv</span><span class="p">(</span><span class="n">exp_time_hrs</span><span class="p">,</span><span class="w"> </span><span class="n">dth_flag</span><span class="p">)</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">allegiance_switched</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">got_cat</span><span class="p">)</span><span class="w">
+</span><span class="n">ggsurvplot</span><span class="p">(</span><span class="n">surv_model</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">got</span><span class="p">,</span><span class="w"> </span><span class="n">pval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span></code></pre></div>    </div>
+
+    <p><img src="../fig/rmd-1-unnamed-chunk-27-1.png" title="plot of chunk unnamed-chunk-27" alt="plot of chunk unnamed-chunk-27" width="612" style="display: block; margin: auto;" /></p>
+  </blockquote>
+</blockquote>
+
+<p>In order to model survival based on <strong>prominence</strong>, which is a continuous variable, we have to categorise characters into groups (i.e. discrete variable).</p>
+
+<blockquote class="challenge">
+  <h2 id="challenge-9">Challenge 9</h2>
+
+  <p>Divide characters into tertiles (i.e. high, medium, and low) based on their <strong>prominence</strong>. Tip - one of possible ways of doing this is with <code class="highlighter-rouge">dplyr</code> package.
+Make a KM survival curve plot for the prominence categories.</p>
+
+  <blockquote class="solution">
+    <h2 id="solution-to-challenge-9">Solution to Challenge 9</h2>
+
+    <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">prominence_cats</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"Low"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Medium"</span><span class="p">,</span><span class="w"> </span><span class="s2">"High"</span><span class="p">)</span><span class="w">
+</span><span class="c1">## bin data into tertiles (n = 3)</span><span class="w">
+</span><span class="n">got_cat</span><span class="o">$</span><span class="n">prominence_tertile</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">ntile</span><span class="p">(</span><span class="n">got</span><span class="o">$</span><span class="n">prominence</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">3</span><span class="p">)</span><span class="w">
+</span><span class="n">got_cat</span><span class="o">$</span><span class="n">prominence</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">prominence_cats</span><span class="p">[</span><span class="n">got_cat</span><span class="o">$</span><span class="n">prominence_tertile</span><span class="p">]</span><span class="w">
+</span></code></pre></div>    </div>
+
+    <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## stratify by prominence tertile</span><span class="w">
+</span><span class="n">surv_model</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">survfit</span><span class="p">(</span><span class="n">Surv</span><span class="p">(</span><span class="n">exp_time_hrs</span><span class="p">,</span><span class="w"> </span><span class="n">dth_flag</span><span class="p">)</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">prominence</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">got_cat</span><span class="p">)</span><span class="w">
+</span><span class="n">ggsurvplot</span><span class="p">(</span><span class="n">surv_model</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">got_cat</span><span class="p">,</span><span class="w"> </span><span class="n">pval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span></code></pre></div>    </div>
+
+    <p><img src="../fig/rmd-1-unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="612" style="display: block; margin: auto;" /></p>
+  </blockquote>
+</blockquote>
+
+<h2 id="cox-model">Cox model</h2>
+
+<p>Cox proportional hazards regression analysis, which works for both quantitative predictor variables and for categorical variables, extends survival analysis methods to assess the effect  on survival time by of multiple risk factors simultaneously.</p>
+
+<p>The function <code class="highlighter-rouge">coxph</code> can be used to compute the Cox proportional hazards regression model. Its main arguments include:</p>
+
+<ul>
+  <li>formula, represented by a survival object created using the function <code class="highlighter-rouge">Surv</code>.</li>
+  <li>dataset containing the variables.</li>
+</ul>
+
+<p>Univariate Cox regression for a single variable <strong>sex</strong>.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">coxph</span><span class="p">(</span><span class="n">Surv</span><span class="p">(</span><span class="n">exp_time_hrs</span><span class="p">,</span><span class="w"> </span><span class="n">dth_flag</span><span class="p">)</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">sex</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">got_cat</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Call:
+coxph(formula = Surv(exp_time_hrs, dth_flag) ~ sex, data = got_cat)
+
+          coef exp(coef) se(coef)     z        p
+sexMale 0.6264    1.8709   0.1697 3.691 0.000223
+
+Likelihood ratio test=15.24  on 1 df, p=9.462e-05
+n= 359, number of events= 212 
+</code></pre></div></div>
+
+<h3 id="multivariate-cox-model">Multivariate Cox model</h3>
+
+<p>To perform multivariate Cox regression, all variables of interest must be listed in the formula. The obtained p-values indicate whether the relationship between survival and the given risk factor was significant. Which variables are significant in this Cox model?</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cox_fit</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">coxph</span><span class="p">(</span><span class="n">Surv</span><span class="p">(</span><span class="n">exp_time_hrs</span><span class="p">,</span><span class="w"> </span><span class="n">dth_flag</span><span class="p">)</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">sex</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">social_status</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">allegiance_switched</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">prominence</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">got_cat</span><span class="p">)</span><span class="w">
+</span><span class="n">print</span><span class="p">(</span><span class="n">cox_fit</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Call:
+coxph(formula = Surv(exp_time_hrs, dth_flag) ~ sex + social_status + 
+    allegiance_switched + prominence, data = got_cat)
+
+                          coef exp(coef) se(coef)      z        p
+sexMale                 0.2584    1.2949   0.1727  1.496   0.1345
+social_statusLowborn    0.3402    1.4053   0.1571  2.165   0.0304
+allegiance_switchedYes -0.8756    0.4166   0.2092 -4.186 2.84e-05
+prominenceLow          -1.4369    0.2377   0.2360 -6.089 1.14e-09
+prominenceMedium        0.7619    2.1424   0.1602  4.755 1.98e-06
+
+Likelihood ratio test=156.9  on 5 df, p=&lt; 2.2e-16
+n= 359, number of events= 212 
+</code></pre></div></div>
+
+<p>Hazard ratios (HR) are derived from the multivariate Cox model. Briefly, an HR &gt; 1 indicates an increased risk of death if a specific risk factor is met by the individual. An HR &lt; 1 indicates a decreased risk. Plot the obtained HR using function <code class="highlighter-rouge">ggforest</code>.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggforest</span><span class="p">(</span><span class="n">cox_fit</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">got_cat</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="error highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Warning: Removed 4 rows containing missing values (geom_errorbar).
+</code></pre></div></div>
+
+<p><img src="../fig/rmd-1-unnamed-chunk-32-1.png" title="plot of chunk unnamed-chunk-32" alt="plot of chunk unnamed-chunk-32" width="612" style="display: block; margin: auto;" /></p>
+
+<blockquote class="challenge">
+  <h2 id="challenge-10">Challenge 10</h2>
+
+  <p>What kind of a character was more likely to die in Game of Thrones?</p>
+
+  <blockquote class="solution">
+    <h2 id="solution-to-challenge-10">Solution to Challenge 10</h2>
+
+    <p>Character that was more likely to die in Game of Thrones:</p>
+
+    <ul>
+      <li>Male, rather than female (but not statistically significant)</li>
+      <li>Lowborn, rather than highborn</li>
+      <li>Those who did not switch allegiance (loyalty wins?)</li>
+      <li>Characters who only featured moderately prominently (protection by the importance of the role?)</li>
+    </ul>
+
+  </blockquote>
+</blockquote>
+
+:ET

@@ -19,7 +19,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta http-equiv="last-modified" content="2020-02-24 09:58:18 +0000">
+    <meta http-equiv="last-modified" content="2020-02-24 11:10:48 +0000">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- meta "search-domain" used for google site search function google_search() -->
     <meta name="search-domain" value="">
@@ -46,7 +46,7 @@
     <link rel="icon" type="image/png" href="./assets/favicons/swc/favicon-32x32.png" sizes="32x32" />
     <link rel="icon" type="image/png" href="./assets/favicons/swc/favicon-16x16.png" sizes="16x16" />
     <link rel="icon" type="image/png" href="./assets/favicons/swc/favicon-128.png" sizes="128x128" />
-    <meta name="application-name" content="Software Carpentry - R for Reproducible Scientific Analysis"/>
+    <meta name="application-name" content="Software Carpentry - R for Survival Analysis"/>
     <meta name="msapplication-TileColor" content="#FFFFFF" />
     <meta name="msapplication-TileImage" content="./assets/favicons/swc/mstile-144x144.png" />
     <meta name="msapplication-square70x70logo" content="./assets/favicons/swc/mstile-70x70.png" />
@@ -61,7 +61,7 @@
 	<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
 	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 	<![endif]-->
-    <title>R for Reproducible Scientific Analysis: Setup</title>
+    <title>R for Survival Analysis: Setup</title>
   </head>
   <body>
 
@@ -112,6 +112,8 @@
         <li class="dropdown">
           <a href="./" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Episodes <span class="caret"></span></a>
           <ul class="dropdown-menu">
+            
+            <li><a href="./17-example-dataset/index.html">Mortality and survival in Game of Thrones</a></li>
             
 	    <li role="separator" class="divider"></li>
             <li><a href="./aio.html">All in one page (Beta)</a></li>
@@ -165,16 +167,37 @@
 
 
 
-<h1 class="maintitle"><a href="./">R for Reproducible Scientific Analysis</a>: Setup</h1>
+<h1 class="maintitle"><a href="./">R for Survival Analysis</a>: Setup</h1>
 
 <article>
-<p>This lesson assumes you have R and RStudio installed on your computer.</p>
-
-<p>The latest version of R can be downloaded <a href="https://cran.r-project.org/mirrors.html">here</a>.</p>
-
-<p>RStudio is an application (an integrated development environment or IDE) that facilitates the use of R and offers a number of nice additional features.
-It can be downloaded <a href="https://www.rstudio.com/products/rstudio/download/">here</a>.
+<p>This lesson assumes you have R and RStudio installed on your computer. The latest version of R can be downloaded <a href="https://cran.r-project.org/mirrors.html">here</a>. RStudio is an application (an integrated development environment or IDE) that facilitates the use of R and offers a number of nice additional features. It can be downloaded <a href="https://www.rstudio.com/products/rstudio/download/">here</a>.
 You will need the free Desktop version for your computer.</p>
+
+<p>The lesson is based on the Game of Thrones characters’ mortality dataset that was published <a href="https://figshare.com/articles/Game_of_Thrones_mortality_and_survival_dataset/8259680?mc_cid=6ee60dc1ef&amp;mc_eid=f10fe3b3f2">here</a>. Please save the following two files using <code class="highlighter-rouge">File - Save As</code> dialog in your browser.</p>
+
+<ol>
+  <li>Original <a href="https://raw.githubusercontent.com/lauzikaite/r-novice-gapminder/gh-pages/_episodes_rmd/data/character_data_S01-S08.csv">characters data</a></li>
+  <li>Additional <a href="https://raw.githubusercontent.com/lauzikaite/r-novice-gapminder/gh-pages/_episodes_rmd/data/encoding.csv">data encoding</a> table</li>
+</ol>
+
+<p>You can install all required R packages by running the following function in R console:</p>
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">install_dependencies</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+  </span><span class="n">dependencies</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"dplyr"</span><span class="p">,</span><span class="w">  </span><span class="s2">"ggplot2"</span><span class="p">,</span><span class="w"> </span><span class="s2">"survival"</span><span class="p">,</span><span class="w"> </span><span class="s2">"survminer"</span><span class="p">)</span><span class="w">
+  </span><span class="n">installed</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">installed.packages</span><span class="p">()</span><span class="w">
+  </span><span class="n">to_install</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">subset</span><span class="p">(</span><span class="n">dependencies</span><span class="p">,</span><span class="w"> </span><span class="o">!</span><span class="p">(</span><span class="n">dependencies</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="n">installed</span><span class="p">[,</span><span class="w"> </span><span class="s2">"Package"</span><span class="p">]))</span><span class="w">
+  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nf">length</span><span class="p">(</span><span class="n">to_install</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="m">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">requireNamespace</span><span class="p">(</span><span class="s2">"BiocManager"</span><span class="p">,</span><span class="w"> </span><span class="n">quietly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="n">install.packages</span><span class="p">(</span><span class="s2">"BiocManager"</span><span class="p">)</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span><span class="n">message</span><span class="p">(</span><span class="s2">"Installing packages: "</span><span class="p">,</span><span class="w"> </span><span class="n">to_install</span><span class="p">,</span><span class="w"> </span><span class="s2">" ..."</span><span class="p">)</span><span class="w">
+    </span><span class="n">BiocManager</span><span class="o">::</span><span class="n">install</span><span class="p">(</span><span class="n">to_install</span><span class="p">)</span><span class="w">
+  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="n">message</span><span class="p">(</span><span class="s2">"All dependencies are already installed."</span><span class="p">)</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span><span class="n">install_dependencies</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
 
 </article>
 

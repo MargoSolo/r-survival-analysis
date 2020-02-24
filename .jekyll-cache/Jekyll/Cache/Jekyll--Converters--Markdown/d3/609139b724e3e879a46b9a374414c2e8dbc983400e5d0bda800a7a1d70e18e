@@ -1,0 +1,13 @@
+I"<p>This lesson assumes you have R and RStudio installed on your computer. The latest version of R can be downloaded <a href="https://cran.r-project.org/mirrors.html">here</a>. RStudio is an application (an integrated development environment or IDE) that facilitates the use of R and offers a number of nice additional features. It can be downloaded <a href="https://www.rstudio.com/products/rstudio/download/">here</a>.
+You will need the free Desktop version for your computer.</p>
+
+<p>The lesson is based on the Game of Thrones characters’ mortality dataset that was published <a href="https://figshare.com/articles/Game_of_Thrones_mortality_and_survival_dataset/8259680?mc_cid=6ee60dc1ef&amp;mc_eid=f10fe3b3f2">here</a>. Please save the following two files using <code class="highlighter-rouge">File - Save As</code> dialog in your browser.</p>
+
+<ol>
+  <li>Original <a href="https://raw.githubusercontent.com/lauzikaite/r-novice-gapminder/gh-pages/_episodes_rmd/data/character_data_S01-S08.csv">characters data</a></li>
+  <li>Additional <a href="https://raw.githubusercontent.com/lauzikaite/r-novice-gapminder/gh-pages/_episodes_rmd/data/encoding.csv">data encoding</a> table</li>
+</ol>
+
+<p>You can install all required R packages by running the following function in R console:</p>
+
+:ET

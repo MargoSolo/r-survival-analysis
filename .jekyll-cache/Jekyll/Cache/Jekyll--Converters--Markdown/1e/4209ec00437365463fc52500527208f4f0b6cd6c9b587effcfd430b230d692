@@ -1,6 +1,8 @@
-I"Œ<script>
+I"ï<script>
   window.onload = function() {
     var lesson_episodes = [
+    
+    "/17-example-dataset/index.html"
     
     ];
     var xmlHttp = [];  /* Required since we are going to query every episode. */
@@ -22,5 +24,7 @@
     }
   }
 </script>
+
+<article id="/17-example-dataset/index.html"></article>
 
 :ET
