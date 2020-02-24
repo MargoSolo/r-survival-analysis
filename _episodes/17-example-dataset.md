@@ -182,12 +182,41 @@ Once data is loaded into R, let's evaluate its quality.
 > > ~~~
 > > {: .output}
 > >
-> > The last five columns have no entries at all and should be removed to not interfere with statistical analyses.
+> > The last six columns have no entries at all and should be removed to not interfere with statistical analyses.
 > > 
 > > ~~~
 > > ## remove columns that only contain NAs as entries
-> > got <- got_dat %>% 
-> >   select(which(colSums(is.na(.)) < nrow(got_dat)))
+> > # (1) for each column, do all rows contain NAs?
+> > nas_all <- got_dat %>% 
+> >   summarise_all(funs(all(is.na(.))))
+> > ~~~
+> > {: .language-r}
+> > 
+> > 
+> > 
+> > ~~~
+> > Warning: funs() is soft deprecated as of dplyr 0.8.0
+> > Please use a list of either functions or lambdas: 
+> > 
+> >   # Simple named list: 
+> >   list(mean = mean, median = median)
+> > 
+> >   # Auto named with `tibble::lst()`: 
+> >   tibble::lst(mean, median)
+> > 
+> >   # Using lambdas
+> >   list(~ mean(., trim = .2), ~ median(., na.rm = TRUE))
+> > This warning is displayed once per session.
+> > ~~~
+> > {: .error}
+> > 
+> > 
+> > 
+> > ~~~
+> > # (2) which columns contain only NAs?
+> > to_remove <- which(nas_all == TRUE)
+> > # (3) remove these columns 
+> > got <- got_dat[, -to_remove]
 > > ~~~
 > > {: .language-r}
 > {: .solution}
@@ -274,37 +303,46 @@ This is not a very informative graph, because all categorical variables are enco
 > ## Challenge 4
 >
 > How can you find the values for each of the encoded categorical variable?
->
+> Tip - use `tidyr::pivot_longer` function to list all variables for each character in a separate row, then iterate over them using `dplyr::rowwise` and finally, apply `tidyr::pivot_wider` function to collect all observations for each character into a single row again.
+> 
 > > ## Solution to Challenge 4
 > >
 > > 
 > > ~~~
-> > ## What are the categorial variables?
+> > ## (1) What are the unique categorial variables?
 > > cols_cat <- unique(meta$variable)
-> > got_cat <- got %>% 
-> >   select(cols_cat, id, name) %>% 
-> >   tidyr::gather(key = cat_variable, value = cat_code, -id, -name) %>% 
+> > 
+> > ## (2) Use tidyr::pivot_longer to pivot data to long format:
+> > # for each character, extract all of the categorical variables into a separate row
+> > got_cat_long <- got %>%
+> >   # use all_of() to force the selection of the column names listed in the variable cols_cat
+> >     select(all_of(cols_cat), id, name) %>% 
+> >     tidyr::pivot_longer(-c(id, name),
+> >       names_to = "cat_variable",
+> >       values_to = "cat_code")
+> > 
+> > ## (3) Extract variables' values from meta data.frame
+> > got_cat_long <- got_cat_long %>%
+> >   # for each character and variable combination
 > >   rowwise() %>% 
-> >   mutate(variable_value = ifelse(is.na(cat_code), NA,
+> >   mutate(variable_value = ifelse(
+> >     # if character and variable combination is not NA
+> >     is.na(cat_code), NA,
+> >     # extract the variable's value from the meta data.frame
 > >     meta %>% 
 > >       filter(variable == cat_variable, code == cat_code) %>%
-> >       select(value) %>% 
+> >       select(value) %>%
 > >       pull())) %>% 
-> >   select(-cat_code) %>% 
-> >   tidyr::spread(key = cat_variable, value = variable_value) %>% 
+> >     select(-cat_code) 
+> >   
+> > ## (4) Use tidyr::pivot_wider to pivot data back to wide format:
+> > got_cat <- got_cat_long %>% 
+> >   tidyr::pivot_wider(names_from = cat_variable,
+> >                      values_from = variable_value) %>% 
+> >   # remove grouping by rows
 > >   ungroup()
 > > ~~~
 > > {: .language-r}
-> > 
-> > 
-> > 
-> > ~~~
-> > Note: Using an external vector in selections is ambiguous.
-> > ℹ Use `all_of(cols_cat)` instead of `cols_cat` to silence this message.
-> > ℹ See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.
-> > This message is displayed once per session.
-> > ~~~
-> > {: .output}
 > >
 > > Now that you have a data.frame with values for the categorical variables, re-run the distribution plot.
 > > Make sure that x-axis is readible. Tip - rotate the labels.
@@ -779,7 +817,7 @@ Warning: Removed 4 rows containing missing values (geom_errorbar).
 > >
 > > * Male, rather than female (but not statistically significant)
 > > * Lowborn, rather than highborn
-> > * Those who did not switch allegiance (loyalty wins?)
+> > * Those who did not switch allegiance (disloyalty pays off?)
 > > * Characters who only featured moderately prominently (protection by the importance of the role?)
 > > 
 > {: .solution}
