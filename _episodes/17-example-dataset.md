@@ -64,7 +64,7 @@ The following objects are masked from 'package:base':
 
 > ## Challenge 1
 >
-> Save all three files your `data/` directory and change the working directory to it.
+> Save the two files in your `data/` directory and change the working directory to it.
 > Now read the `data/character_data_S01-S08.csv` and `data/encoding.csv` files into R.
 >
 > > ## Solution to Challenge 1
@@ -85,7 +85,7 @@ Once data is loaded into R, let's evaluate its quality.
 
 > ## Challenge 2
 >
-> Does the table with GoT characters's mortality data look correct? Are there any missing entries? 
+> Does the table with GoT characters's mortality data look correct? Are there any missing entries? Tip - use `base R` functionality to explore the data frame.
 >
 > > ## Solution to Challenge 2
 > >
@@ -182,37 +182,16 @@ Once data is loaded into R, let's evaluate its quality.
 > > ~~~
 > > {: .output}
 > >
-> > The last six columns have no entries at all and should be removed to not interfere with statistical analyses.
+> > The last six columns have no entries at all and therefore should be removed to not interfere with statistical analyses.
 > > 
 > > ~~~
 > > ## remove columns that only contain NAs as entries
 > > # (1) for each column, do all rows contain NAs?
 > > nas_all <- got_dat %>% 
-> >   summarise_all(funs(all(is.na(.))))
-> > ~~~
-> > {: .language-r}
-> > 
-> > 
-> > 
-> > ~~~
-> > Warning: funs() is soft deprecated as of dplyr 0.8.0
-> > Please use a list of either functions or lambdas: 
-> > 
-> >   # Simple named list: 
-> >   list(mean = mean, median = median)
-> > 
-> >   # Auto named with `tibble::lst()`: 
-> >   tibble::lst(mean, median)
-> > 
-> >   # Using lambdas
-> >   list(~ mean(., trim = .2), ~ median(., na.rm = TRUE))
-> > This warning is displayed once per session.
-> > ~~~
-> > {: .error}
-> > 
-> > 
-> > 
-> > ~~~
+> >   # use dplyr to apply the same function to all columns 
+> >   # the function to be applied is provided inside list()
+> >   # ~ is used to generate new column names automatically
+> >   summarise_all(list(~all(is.na(.))))
 > > # (2) which columns contain only NAs?
 > > to_remove <- which(nas_all == TRUE)
 > > # (3) remove these columns 
