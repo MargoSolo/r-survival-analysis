@@ -3,7 +3,7 @@ layout: lesson
 root: .
 ---
 
-*An introduction to survival analysis using Game of Thrones mortality dataset in R.*
+*An introduction to survival analysis in R using Game of Thrones mortality dataset.*
 
 The goal of this lesson is to practice the common methods for data manipulation and visualisation. These materials are based on the mortality dataset of the *Games of Thrones* television series, which was published in *[Injury Epidemiology][article]*.
 
@@ -11,7 +11,7 @@ Note that this lesson will focus on teaching the best practices using **base R**
 
 > ## Prerequisites
 >
-> Familiarity with the **ggplot2** and **dplyr** packages and base R functions for data frame manipulations and plotting.
+> Familiarity with the **ggplot2** and **dplyr** packages and **base R** functions for data frame manipulations and plotting.
 {: .prereq}
 
 [article]: https://injepijournal.biomedcentral.com/articles/10.1186/s40621-018-0174-7

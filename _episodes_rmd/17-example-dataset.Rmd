@@ -4,15 +4,17 @@ teaching: 30
 exercises: 120
 keypoints:
 - Load data into R.
-- Practice using **base R** and **Tidyverse**.
-- Perform basic data visualisations using `ggplot2` package.
+- Practice using `base R`, `dplyr` and `tidyverse` functions for data manipulations.
+- Perform data visualisations using `ggplot2` package.
 - Perform survival analyses using `survival` and `survminer` packages.
 objectives:
 - Explore GoT mortality dataset.
 - Visualise GoT dataset graphically.
 - Get to know the basics of suvival analyses.
 questions:
-- How can I perform basic graphical data visualisations?
+- How can I import data into R?
+- How can I check the quality of the data?
+- How can I summarise my data through graphics?
 - How can I perform survival analysis?
 source: Rmd
 ---
@@ -20,7 +22,7 @@ source: Rmd
 ```{r, include=FALSE}
 source("../bin/chunk-options.R")
 knitr_fig_path("1-")
-.libPaths("/home/elze/anaconda3/lib/R/library")
+# .libPaths("/home/elze/anaconda3/lib/R/library") # for Ubuntu only
 ```
 
 ![Death is certain, the time is not](./../fig/GoT.png)

@@ -6,15 +6,17 @@ teaching: 30
 exercises: 120
 keypoints:
 - Load data into R.
-- Practice using **base R** and **Tidyverse**.
-- Perform basic data visualisations using `ggplot2` package.
+- Practice using `base R`, `dplyr` and `tidyverse` functions for data manipulations.
+- Perform data visualisations using `ggplot2` package.
 - Perform survival analyses using `survival` and `survminer` packages.
 objectives:
 - Explore GoT mortality dataset.
 - Visualise GoT dataset graphically.
 - Get to know the basics of suvival analyses.
 questions:
-- How can I perform basic graphical data visualisations?
+- How can I import data into R?
+- How can I check the quality of the data?
+- How can I summarise my data through graphics?
 - How can I perform survival analysis?
 source: Rmd
 ---
@@ -39,9 +41,28 @@ library(dplyr)
 
 
 ~~~
-Error in library(dplyr): there is no package called 'dplyr'
+
+Attaching package: 'dplyr'
 ~~~
-{: .error}
+{: .output}
+
+
+
+~~~
+The following objects are masked from 'package:stats':
+
+    filter, lag
+~~~
+{: .output}
+
+
+
+~~~
+The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union
+~~~
+{: .output}
 
 > ## Challenge 1
 >
@@ -173,68 +194,17 @@ Once data is loaded into R, let's evaluate its quality.
 > >   # the function to be applied is provided inside list()
 > >   # ~ is used to generate new column names automatically
 > >   summarise_all(list(~all(is.na(.))))
-> > ~~~
-> > {: .language-r}
-> > 
-> > 
-> > 
-> > ~~~
-> > Error in got_dat %>% summarise_all(list(~all(is.na(.)))): could not find function "%>%"
-> > ~~~
-> > {: .error}
-> > 
-> > 
-> > 
-> > ~~~
 > > # (2) which columns contain only NAs?
 > > to_remove <- which(nas_all == TRUE)
-> > ~~~
-> > {: .language-r}
-> > 
-> > 
-> > 
-> > ~~~
-> > Error in which(nas_all == TRUE): object 'nas_all' not found
-> > ~~~
-> > {: .error}
-> > 
-> > 
-> > 
-> > ~~~
 > > # (3) remove these columns 
 > > got <- got_dat[, -to_remove]
 > > ~~~
 > > {: .language-r}
-> > 
-> > 
-> > 
-> > ~~~
-> > Error in `[.data.frame`(got_dat, , -to_remove): object 'to_remove' not found
-> > ~~~
-> > {: .error}
 > {: .solution}
 {: .challenge}
 
 
 
-~~~
-Error in got_dat %>% summarise_all(list(~all(is.na(.)))): could not find function "%>%"
-~~~
-{: .error}
-
-
-
-~~~
-Error in which(nas_all == TRUE): object 'nas_all' not found
-~~~
-{: .error}
-
-
-
-~~~
-Error in `[.data.frame`(got_dat, , -to_remove): object 'to_remove' not found
-~~~
-{: .error}
 
 ## Graphical data exploration
 
@@ -247,13 +217,6 @@ To make graphical data visualisations, we will be using `ggplot` package.
 library(ggplot2)
 ~~~
 {: .language-r}
-
-
-
-~~~
-Error in library(ggplot2): there is no package called 'ggplot2'
-~~~
-{: .error}
 
 First, we will make plots to check the distribution of different variables:
 
@@ -312,12 +275,7 @@ To begin with, let's compare three categorical variables, e.g. **occupation** vs
 > > ~~~
 > > {: .language-r}
 > > 
-> > 
-> > 
-> > ~~~
-> > Error in ggplot(got): could not find function "ggplot"
-> > ~~~
-> > {: .error}
+> > <img src="../fig/rmd-1-unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" width="612" style="display: block; margin: auto;" />
 > {: .solution}
 {: .challenge}
 
@@ -343,19 +301,7 @@ This is not a very informative graph, because all categorical variables are enco
 > >     tidyr::pivot_longer(-c(id, name),
 > >       names_to = "cat_variable",
 > >       values_to = "cat_code")
-> > ~~~
-> > {: .language-r}
 > > 
-> > 
-> > 
-> > ~~~
-> > Error in got %>% select(all_of(cols_cat), id, name) %>% tidyr::pivot_longer(-c(id, : could not find function "%>%"
-> > ~~~
-> > {: .error}
-> > 
-> > 
-> > 
-> > ~~~
 > > ## (3) Extract variables' values from meta data.frame
 > > got_cat_long <- got_cat_long %>%
 > >   # for each character and variable combination
@@ -369,19 +315,7 @@ This is not a very informative graph, because all categorical variables are enco
 > >       select(value) %>%
 > >       pull())) %>% 
 > >     select(-cat_code) 
-> > ~~~
-> > {: .language-r}
-> > 
-> > 
-> > 
-> > ~~~
-> > Error in got_cat_long %>% rowwise() %>% mutate(variable_value = ifelse(is.na(cat_code), : could not find function "%>%"
-> > ~~~
-> > {: .error}
-> > 
-> > 
-> > 
-> > ~~~
+> >   
 > > ## (4) Use tidyr::pivot_wider to pivot data back to wide format:
 > > got_cat <- got_cat_long %>% 
 > >   tidyr::pivot_wider(names_from = cat_variable,
@@ -390,13 +324,6 @@ This is not a very informative graph, because all categorical variables are enco
 > >   ungroup()
 > > ~~~
 > > {: .language-r}
-> > 
-> > 
-> > 
-> > ~~~
-> > Error in got_cat_long %>% tidyr::pivot_wider(names_from = cat_variable, : could not find function "%>%"
-> > ~~~
-> > {: .error}
 > >
 > > Now that you have a data.frame with values for the categorical variables, re-run the distribution plot.
 > > Make sure that x-axis is readible. Tip - rotate the labels.
@@ -412,34 +339,11 @@ This is not a very informative graph, because all categorical variables are enco
 > > ~~~
 > > {: .language-r}
 > > 
-> > 
-> > 
-> > ~~~
-> > Error in ggplot(got_cat): could not find function "ggplot"
-> > ~~~
-> > {: .error}
+> > <img src="../fig/rmd-1-unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" width="612" style="display: block; margin: auto;" />
 > {: .solution}
 {: .challenge}
 
 
-~~~
-Error in got %>% select(all_of(cols_cat), id, name) %>% tidyr::pivot_longer(-c(id, : could not find function "%>%"
-~~~
-{: .error}
-
-
-
-~~~
-Error in got_cat_long %>% rowwise() %>% mutate(variable_value = ifelse(is.na(cat_code), : could not find function "%>%"
-~~~
-{: .error}
-
-
-
-~~~
-Error in got_cat_long %>% tidyr::pivot_wider(names_from = cat_variable, : could not find function "%>%"
-~~~
-{: .error}
 
 Let's explore this dataset more by looking into how frequently new characters were introduced into the show. Which `got` data.frame column store this information?
 
@@ -459,12 +363,7 @@ Let's explore this dataset more by looking into how frequently new characters we
 > > ~~~
 > > {: .language-r}
 > > 
-> > 
-> > 
-> > ~~~
-> > Error in ggplot(got): could not find function "ggplot"
-> > ~~~
-> > {: .error}
+> > <img src="../fig/rmd-1-unnamed-chunk-13-1.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" width="612" style="display: block; margin: auto;" />
 > > Maybe this explain why season 7 is considered the worst of all?
 > > 
 > > Now, let's plot how many characters died in each season. There are characters which have NAs in the corresponding data.frame columns. Can you add them to the plot with a more meaningful data label than NA?
@@ -481,12 +380,7 @@ Let's explore this dataset more by looking into how frequently new characters we
 > > ~~~
 > > {: .language-r}
 > > 
-> > 
-> > 
-> > ~~~
-> > Error in ggplot(got %>% mutate(dth_season = ifelse(is.na(dth_season), : could not find function "ggplot"
-> > ~~~
-> > {: .error}
+> > <img src="../fig/rmd-1-unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" width="612" style="display: block; margin: auto;" />
 > {: .solution}
 {: .challenge}
 
@@ -514,9 +408,12 @@ For example, we can check whether **men and women** have the same distribution o
 > > 
 > > 
 > > ~~~
-> > Error in table(got_cat$sex, got_cat$occupation): object 'got_cat' not found
+> >         
+> >          Boiled leather collar Silk collar Unknown/Unclear
+> >   Female                    44          24              37
+> >   Male                     177          72               5
 > > ~~~
-> > {: .error}
+> > {: .output}
 > > 
 > > 
 > > 
@@ -529,9 +426,13 @@ For example, we can check whether **men and women** have the same distribution o
 > > 
 > > 
 > > ~~~
-> > Error in is.data.frame(x): object 'got_cat' not found
+> > 
+> > 	Pearson's Chi-squared test
+> > 
+> > data:  got_cat$sex and got_cat$occupation
+> > X-squared = 80.436, df = 2, p-value < 2.2e-16
 > > ~~~
-> > {: .error}
+> > {: .output}
 > > 
 > > It seems as if sex and occupation variables are dependent? But information of the occupation for lots of the characters is unknwon. Perhaps these should be omitted from the test.
 > > 
@@ -540,19 +441,6 @@ For example, we can check whether **men and women** have the same distribution o
 > > ## remove characters for which occupation is not known
 > > got_occup <- got_cat %>% 
 > >   filter(occupation != "Unknown/Unclear")
-> > ~~~
-> > {: .language-r}
-> > 
-> > 
-> > 
-> > ~~~
-> > Error in got_cat %>% filter(occupation != "Unknown/Unclear"): could not find function "%>%"
-> > ~~~
-> > {: .error}
-> > 
-> > 
-> > 
-> > ~~~
 > > ## rerun the test
 > > chisq.test(got_occup$sex, got_occup$occupation, correct = FALSE)
 > > ~~~
@@ -561,9 +449,13 @@ For example, we can check whether **men and women** have the same distribution o
 > > 
 > > 
 > > ~~~
-> > Error in is.data.frame(x): object 'got_occup' not found
+> > 
+> > 	Pearson's Chi-squared test
+> > 
+> > data:  got_occup$sex and got_occup$occupation
+> > X-squared = 1.0293, df = 1, p-value = 0.3103
 > > ~~~
-> > {: .error}
+> > {: .output}
 > {: .solution}
 {: .challenge}
 
@@ -578,9 +470,14 @@ head(got[got$dth_flag == 1, "icd10_cause_text"])
 
 
 ~~~
-Error in head(got[got$dth_flag == 1, "icd10_cause_text"]): object 'got' not found
+[1] "Assault by knife"                                                                  
+[2] "Assault by knife"                                                                  
+[3] "Legal execution"                                                                   
+[4] "Assault by hanging, strangulation and suffocation"                                 
+[5] "Assault by other specified sharp object"                                           
+[6] "War operations involving firearm discharge and other forms of conventional warfare"
 ~~~
-{: .error}
+{: .output}
 
 > ## Challenge 7
 >
@@ -594,33 +491,7 @@ Error in head(got[got$dth_flag == 1, "icd10_cause_text"]): object 'got' not foun
 > > 
 > > ~~~
 > > chars_died <- nrow(got[got$dth_flag == 1, ])
-> > ~~~
-> > {: .language-r}
-> > 
-> > 
-> > 
-> > ~~~
-> > Error in nrow(got[got$dth_flag == 1, ]): object 'got' not found
-> > ~~~
-> > {: .error}
-> > 
-> > 
-> > 
-> > ~~~
 > > chars_total <- nrow(got)
-> > ~~~
-> > {: .language-r}
-> > 
-> > 
-> > 
-> > ~~~
-> > Error in nrow(got): object 'got' not found
-> > ~~~
-> > {: .error}
-> > 
-> > 
-> > 
-> > ~~~
 > > ## percentage of characters that died
 > > chars_died/ chars_total * 100
 > > ~~~
@@ -629,55 +500,16 @@ Error in head(got[got$dth_flag == 1, "icd10_cause_text"]): object 'got' not foun
 > > 
 > > 
 > > ~~~
-> > Error in eval(expr, envir, enclos): object 'chars_died' not found
+> > [1] 59.05292
 > > ~~~
-> > {: .error}
+> > {: .output}
 > > To identify the most common cause of death, use base R function `table` which calculates frequencies of entries.
 > > 
 > > 
 > > ~~~
 > > causes <- table(got[got$dth_flag == 1, "icd10_cause_text"])
-> > ~~~
-> > {: .language-r}
-> > 
-> > 
-> > 
-> > ~~~
-> > Error in table(got[got$dth_flag == 1, "icd10_cause_text"]): object 'got' not found
-> > ~~~
-> > {: .error}
-> > 
-> > 
-> > 
-> > ~~~
 > > causes <- as.data.frame(causes[order(causes, decreasing = TRUE)])
-> > ~~~
-> > {: .language-r}
-> > 
-> > 
-> > 
-> > ~~~
-> > Error in as.data.frame(causes[order(causes, decreasing = TRUE)]): object 'causes' not found
-> > ~~~
-> > {: .error}
-> > 
-> > 
-> > 
-> > ~~~
 > > causes$prop <- causes$Freq/chars_died * 100
-> > ~~~
-> > {: .language-r}
-> > 
-> > 
-> > 
-> > ~~~
-> > Error in eval(expr, envir, enclos): object 'causes' not found
-> > ~~~
-> > {: .error}
-> > 
-> > 
-> > 
-> > ~~~
 > > cat(paste(causes$Var1,  "-", causes$prop, "\n", sep = " "))
 > > ~~~
 > > {: .language-r}
@@ -685,9 +517,30 @@ Error in head(got[got$dth_flag == 1, "icd10_cause_text"]): object 'got' not foun
 > > 
 > > 
 > > ~~~
-> > Error in paste(causes$Var1, "-", causes$prop, "\n", sep = " "): object 'causes' not found
+> > Assault by knife - 27.3584905660377 
+> >  War operations involving firearm discharge and other forms of conventional warfare - 24.5283018867925 
+> >  Assault by smoke, fire and flames - 8.49056603773585 
+> >  Assault by other specified sharp object - 5.66037735849057 
+> >  Legal execution - 5.18867924528302 
+> >  Assault by drugs, medicaments and biological substances - 3.30188679245283 
+> >  War operations involving fires, conflagrations and hot substances - 3.30188679245283 
+> >  Assault by bodily force - 2.83018867924528 
+> >  Assault by unspecified means - 2.83018867924528 
+> >  Assault by pushing from high place - 2.35849056603774 
+> >  Bitten or struck by other mammal - 2.35849056603774 
+> >  Assault by hanging, strangulation and suffocation - 1.88679245283019 
+> >  Other maltreatment syndromes - 1.88679245283019 
+> >   - 1.41509433962264 
+> >  Bitten or struck by dog - 1.41509433962264 
+> >  Assault by blunt object - 0.943396226415094 
+> >  Intentional self-harm by jumping from a high place - 0.943396226415094 
+> >  Intentional self-poisoning by and exposure to other unspecified drugs, medicaments and biological substances - 0.943396226415094 
+> >  War operations, unspecified - 0.943396226415094 
+> >  Assault by steam, hot vapours and hot objects - 0.471698113207547 
+> >  Intentional self-harm by hanging - 0.471698113207547 
+> >  Intentional self-harm by knife - 0.471698113207547 
 > > ~~~
-> > {: .error}
+> > {: .output}
 > {: .solution}
 {: .challenge}
 
@@ -715,9 +568,16 @@ library(survminer)
 
 
 ~~~
-Error in library(survminer): there is no package called 'survminer'
+Loading required package: ggpubr
 ~~~
-{: .error}
+{: .output}
+
+
+
+~~~
+Loading required package: magrittr
+~~~
+{: .output}
 
 First, we will fit mortality data to the KM model. Column **exp_time_hrs** stores survival time of character in the show (hours), column **dth_flag** indicates whether character has died. Let's add these columns to the `got_cat` data.frame, which contains catgeorical variables values, so that all neccessary information would be in one table.
 
@@ -725,43 +585,10 @@ First, we will fit mortality data to the KM model. Column **exp_time_hrs** store
 ~~~
 ## got and got_cat have the same order, therefore we can simply take the columns from got
 got_cat$exp_time_hrs <- got$exp_time_hrs
-~~~
-{: .language-r}
-
-
-
-~~~
-Error in eval(expr, envir, enclos): object 'got' not found
-~~~
-{: .error}
-
-
-
-~~~
 got_cat$dth_flag <- got$dth_flag
-~~~
-{: .language-r}
-
-
-
-~~~
-Error in eval(expr, envir, enclos): object 'got' not found
-~~~
-{: .error}
-
-
-
-~~~
 surv_object <- with(got_cat, Surv(exp_time_hrs, dth_flag))
 ~~~
 {: .language-r}
-
-
-
-~~~
-Error in with(got_cat, Surv(exp_time_hrs, dth_flag)): object 'got_cat' not found
-~~~
-{: .error}
 
 The function `survfit` will be used to compute KM survival estimate. Its main arguments include:
 
@@ -774,63 +601,19 @@ Let's plot the survival **probability** vs **time** in the show. Also add a line
 ~~~
 ## survival without grouping requires to specify 1 in the formula
 surv_model <- survfit(Surv(exp_time_hrs, dth_flag) ~ 1, data = got_cat)
-~~~
-{: .language-r}
-
-
-
-~~~
-Error in is.data.frame(data): object 'got_cat' not found
-~~~
-{: .error}
-
-
-
-~~~
 ggsurvplot(surv_model, data = got_cat, surv.median.line = "hv")
 ~~~
 {: .language-r}
 
-
-
-~~~
-Error in ggsurvplot(surv_model, data = got_cat, surv.median.line = "hv"): could not find function "ggsurvplot"
-~~~
-{: .error}
+<img src="../fig/rmd-1-unnamed-chunk-23-1.png" title="plot of chunk unnamed-chunk-23" alt="plot of chunk unnamed-chunk-23" width="612" style="display: block; margin: auto;" />
 
 Use the `surv_model` object to extract the probability of surviving at least 1 h in the show.
 
 
 ~~~
 surv_sum <- summary(surv_model)
-~~~
-{: .language-r}
-
-
-
-~~~
-Error in summary(surv_model): object 'surv_model' not found
-~~~
-{: .error}
-
-
-
-~~~
 ## probabilities of surviving less than 1 hour
 probs_1 <- surv_sum$surv[which(surv_sum$time < 1)]
-~~~
-{: .language-r}
-
-
-
-~~~
-Error in eval(expr, envir, enclos): object 'surv_sum' not found
-~~~
-{: .error}
-
-
-
-~~~
 ## probability of surviving at least 1 hour
 probs_1[length(probs_1)]
 ~~~
@@ -839,9 +622,9 @@ probs_1[length(probs_1)]
 
 
 ~~~
-Error in eval(expr, envir, enclos): object 'probs_1' not found
+[1] 0.8462928
 ~~~
-{: .error}
+{: .output}
 
 ### Stratified survival
 
@@ -869,85 +652,31 @@ The function `survdiff` can be used to compute log-rank test comparing two or mo
 > > ~~~
 > > ## stratify by sex
 > > surv_model <- survfit(Surv(exp_time_hrs, dth_flag) ~ sex, data = got_cat)
-> > ~~~
-> > {: .language-r}
-> > 
-> > 
-> > 
-> > ~~~
-> > Error in is.data.frame(data): object 'got_cat' not found
-> > ~~~
-> > {: .error}
-> > 
-> > 
-> > 
-> > ~~~
 > > ggsurvplot(surv_model, data = got, pval = TRUE)
 > > ~~~
 > > {: .language-r}
 > > 
-> > 
-> > 
-> > ~~~
-> > Error in ggsurvplot(surv_model, data = got, pval = TRUE): could not find function "ggsurvplot"
-> > ~~~
-> > {: .error}
+> > <img src="../fig/rmd-1-unnamed-chunk-25-1.png" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" width="612" style="display: block; margin: auto;" />
 > > 
 > > 
 > > ~~~
 > > ## stratify by social_status
 > > surv_model <- survfit(Surv(exp_time_hrs, dth_flag) ~ social_status, data = got_cat)
-> > ~~~
-> > {: .language-r}
-> > 
-> > 
-> > 
-> > ~~~
-> > Error in is.data.frame(data): object 'got_cat' not found
-> > ~~~
-> > {: .error}
-> > 
-> > 
-> > 
-> > ~~~
 > > ggsurvplot(surv_model, data = got, pval = TRUE)
 > > ~~~
 > > {: .language-r}
 > > 
-> > 
-> > 
-> > ~~~
-> > Error in ggsurvplot(surv_model, data = got, pval = TRUE): could not find function "ggsurvplot"
-> > ~~~
-> > {: .error}
+> > <img src="../fig/rmd-1-unnamed-chunk-26-1.png" title="plot of chunk unnamed-chunk-26" alt="plot of chunk unnamed-chunk-26" width="612" style="display: block; margin: auto;" />
 > >
 > > 
 > > ~~~
 > > ## stratify by allegiance_switched
 > > surv_model <- survfit(Surv(exp_time_hrs, dth_flag) ~ allegiance_switched, data = got_cat)
-> > ~~~
-> > {: .language-r}
-> > 
-> > 
-> > 
-> > ~~~
-> > Error in is.data.frame(data): object 'got_cat' not found
-> > ~~~
-> > {: .error}
-> > 
-> > 
-> > 
-> > ~~~
 > > ggsurvplot(surv_model, data = got, pval = TRUE)
 > > ~~~
 > > {: .language-r}
 > > 
-> > 
-> > 
-> > ~~~
-> > Error in ggsurvplot(surv_model, data = got, pval = TRUE): could not find function "ggsurvplot"
-> > ~~~
-> > {: .error}
+> > <img src="../fig/rmd-1-unnamed-chunk-27-1.png" title="plot of chunk unnamed-chunk-27" alt="plot of chunk unnamed-chunk-27" width="612" style="display: block; margin: auto;" />
 > {: .solution}
 {: .challenge}
 
@@ -965,57 +694,19 @@ In order to model survival based on **prominence**, which is a continuous variab
 > > prominence_cats <- c("Low", "Medium", "High")
 > > ## bin data into tertiles (n = 3)
 > > got_cat$prominence_tertile <- ntile(got$prominence, n = 3)
-> > ~~~
-> > {: .language-r}
-> > 
-> > 
-> > 
-> > ~~~
-> > Error in ntile(got$prominence, n = 3): could not find function "ntile"
-> > ~~~
-> > {: .error}
-> > 
-> > 
-> > 
-> > ~~~
 > > got_cat$prominence <- prominence_cats[got_cat$prominence_tertile]
 > > ~~~
 > > {: .language-r}
 > > 
 > > 
-> > 
-> > ~~~
-> > Error in eval(expr, envir, enclos): object 'got_cat' not found
-> > ~~~
-> > {: .error}
-> > 
-> > 
 > > ~~~
 > > ## stratify by prominence tertile
 > > surv_model <- survfit(Surv(exp_time_hrs, dth_flag) ~ prominence, data = got_cat)
-> > ~~~
-> > {: .language-r}
-> > 
-> > 
-> > 
-> > ~~~
-> > Error in is.data.frame(data): object 'got_cat' not found
-> > ~~~
-> > {: .error}
-> > 
-> > 
-> > 
-> > ~~~
 > > ggsurvplot(surv_model, data = got_cat, pval = TRUE)
 > > ~~~
 > > {: .language-r}
 > > 
-> > 
-> > 
-> > ~~~
-> > Error in ggsurvplot(surv_model, data = got_cat, pval = TRUE): could not find function "ggsurvplot"
-> > ~~~
-> > {: .error}
+> > <img src="../fig/rmd-1-unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="612" style="display: block; margin: auto;" />
 > {: .solution}
 {: .challenge}
 
@@ -1039,9 +730,16 @@ coxph(Surv(exp_time_hrs, dth_flag) ~ sex, data = got_cat)
 
 
 ~~~
-Error in terms.formula(formula, specials = ss, data = data): object 'got_cat' not found
+Call:
+coxph(formula = Surv(exp_time_hrs, dth_flag) ~ sex, data = got_cat)
+
+          coef exp(coef) se(coef)     z        p
+sexMale 0.6264    1.8709   0.1697 3.691 0.000223
+
+Likelihood ratio test=15.24  on 1 df, p=9.462e-05
+n= 359, number of events= 212 
 ~~~
-{: .error}
+{: .output}
 
 ### Multivariate Cox model
 
@@ -1050,19 +748,6 @@ To perform multivariate Cox regression, all variables of interest must be listed
 
 ~~~
 cox_fit <- coxph(Surv(exp_time_hrs, dth_flag) ~ sex + social_status + allegiance_switched + prominence, data = got_cat)
-~~~
-{: .language-r}
-
-
-
-~~~
-Error in terms.formula(formula, specials = ss, data = data): object 'got_cat' not found
-~~~
-{: .error}
-
-
-
-~~~
 print(cox_fit)
 ~~~
 {: .language-r}
@@ -1070,9 +755,21 @@ print(cox_fit)
 
 
 ~~~
-Error in print(cox_fit): object 'cox_fit' not found
+Call:
+coxph(formula = Surv(exp_time_hrs, dth_flag) ~ sex + social_status + 
+    allegiance_switched + prominence, data = got_cat)
+
+                          coef exp(coef) se(coef)      z        p
+sexMale                 0.2584    1.2949   0.1727  1.496   0.1345
+social_statusLowborn    0.3402    1.4053   0.1571  2.165   0.0304
+allegiance_switchedYes -0.8756    0.4166   0.2092 -4.186 2.84e-05
+prominenceLow          -1.4369    0.2377   0.2360 -6.089 1.14e-09
+prominenceMedium        0.7619    2.1424   0.1602  4.755 1.98e-06
+
+Likelihood ratio test=156.9  on 5 df, p=< 2.2e-16
+n= 359, number of events= 212 
 ~~~
-{: .error}
+{: .output}
 
 Hazard ratios (HR) are derived from the multivariate Cox model. Briefly, an HR > 1 indicates an increased risk of death if a specific risk factor is met by the individual. An HR < 1 indicates a decreased risk. Plot the obtained HR using function `ggforest`.
 
@@ -1082,12 +779,7 @@ ggforest(cox_fit, data = got_cat)
 ~~~
 {: .language-r}
 
-
-
-~~~
-Error in ggforest(cox_fit, data = got_cat): could not find function "ggforest"
-~~~
-{: .error}
+<img src="../fig/rmd-1-unnamed-chunk-32-1.png" title="plot of chunk unnamed-chunk-32" alt="plot of chunk unnamed-chunk-32" width="612" style="display: block; margin: auto;" />
 
 > ## Challenge 10
 >
