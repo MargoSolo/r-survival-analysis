@@ -38,6 +38,8 @@ In this episode, we will provide solutions based both on **base R** and **Tidyve
 library(dplyr)
 ```
 
+A visual guide for using the most common `dplyr` functions is provided in the [Tidyverse](https://lauzikaite.github.io/r-survival-analysis/tidyverse/) section of this website. 
+
 > ## Challenge 1
 >
 > Save the two files in your `data/` directory and change the working directory to it.
