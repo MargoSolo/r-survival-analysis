@@ -64,6 +64,8 @@ The following objects are masked from 'package:base':
 ~~~
 {: .output}
 
+A visual guide for using the most common `dplyr` functions is provided in the [Tidyverse](https://lauzikaite.github.io/r-survival-analysis/tidyverse/) section of this website. 
+
 > ## Challenge 1
 >
 > Save the two files in your `data/` directory and change the working directory to it.
