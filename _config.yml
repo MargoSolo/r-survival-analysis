@@ -7,11 +7,13 @@
 # dc: Data Carpentry
 # lc: Library Carpentry
 # cp: Carpentries (to use for instructor traning for instance)
-carpentry: "swc"
+carpentry: "incubator"
 
 # Overall title for pages.
 title: "R for Survival Analysis"
 
+# life cycle:
+life_cycle: "alpha"
 
 #------------------------------------------------------------
 # Generic settings (should not need to change).
@@ -89,4 +91,5 @@ exclude:
 # Turn on built-in syntax highlighting.
 highlighter: rouge
 
-theme: jekyll-theme-minimal
+# remote theme
+remote_theme: carpentries/carpentries-theme
